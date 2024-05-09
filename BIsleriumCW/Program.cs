@@ -5,6 +5,7 @@ using BIsleriumCW.Models;
 using BIsleriumCW.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,25 +21,16 @@ builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureRepositoryManager();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserAuthenticationRepository, UserAuthenticationRepository>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureJWT(builder.Configuration);
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowLocalhost3000",
-        build =>
-        {
-            build.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader();
-        });
-});
-
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureSwagger();
 builder.Services.AddSwaggerGen();
-
 
 // Json Serializer
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
@@ -60,9 +52,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// Use CORS middleware
-app.UseCors("AllowLocalhost3000");
 
 app.UseHttpsRedirection();
 
