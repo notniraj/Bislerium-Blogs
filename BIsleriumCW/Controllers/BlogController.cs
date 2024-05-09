@@ -2,6 +2,7 @@
 using BIsleriumCW.Interfaces;
 using BIsleriumCW.Migrations;
 using BIsleriumCW.Models;
+using BIsleriumCW.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -309,25 +310,116 @@ namespace BIsleriumCW.Controllers
             }
         }
 
-
-        [HttpPut]
-        [Route("Upvote/{id}")]
-        public async Task<IActionResult> Upvote(int id)
+        [HttpPost("{blogId}/upvote")]
+        public async Task<ActionResult> Upvote(int blogId)
         {
-            var blog = await _dbContext.Blogs.FindAsync(id);
-
-            if (blog == null)
+            // Call the method to add the comment to the blog
+            // Retrieve the blog from the database
+            var blog = await _dbContext.Blogs.FindAsync(blogId);
+            string getCurrentUserId = _userAuthenticationRepository.GetUserId();
+            var existingReaction = _dbContext.BlogReactions.FirstOrDefault(r => r.UserId == getCurrentUserId && r.BlogId == blogId);
+            // Create a new Reaction
+            var newReaction = new BlogReaction
             {
-                return NotFound(); // Blog not found
+                UserId = getCurrentUserId,
+                BlogId = blogId
+            };
+            if (existingReaction == null)
+            {
+
+
+                // Upvote the blog
+                newReaction.Upvote = true;
+                newReaction.CreatedAt = DateTime.Now;
+                // Add the new Reaction to DbContext and save changes
+                _dbContext.BlogReactions.Add(newReaction);
+            }
+            else
+            {
+                if (existingReaction.Upvote)
+                {
+                    // If user previously upvoted, toggle off the upvote
+                    existingReaction.Upvote = false;
+                }
+                else
+                {
+                    // If user previously downvoted or had no reaction, toggle on the upvote
+                    existingReaction.Upvote = true;
+                    existingReaction.CreatedAt = DateTime.Now;
+                    existingReaction.Downvote = false; // Reset downvote if applicable
+                }
             }
 
-            // Increment the UpVote count
-            blog.UpVote++;
+            int updatedBlogPopularity = BlogPopularityCalculator.CalculateBlogPopularity(blogId, _dbContext.BlogReactions, _dbContext.Comments);
 
-            // Save the changes to the database
+            // Update the BlogPopularity property of the blog post
+            blog.Popularity = updatedBlogPopularity;
+
+            // Save changes to persist the new comment in the database
             await _dbContext.SaveChangesAsync();
 
-            return Ok(blog); // Return the updated blog
+            return Ok(); // Return 200 OK if the comment was added successfully
         }
+
+
+        [HttpPost("{blogId}/downvote")]
+        public async Task<ActionResult> Downvote(int blogId)
+        {
+            // Call the method to add the comment to the blog
+            // Retrieve the blog from the database
+            var blog = await _dbContext.Blogs.FindAsync(blogId);
+            string getCurrentUserId = _userAuthenticationRepository.GetUserId();
+            var existingReaction = _dbContext.BlogReactions.FirstOrDefault(r => r.UserId == getCurrentUserId && r.BlogId == blogId);
+            // Create a new Reaction
+            var newReaction = new BlogReaction
+            {
+                UserId = getCurrentUserId,
+                BlogId = blogId
+            };
+            if (existingReaction == null)
+            {
+
+
+                // Upvote the blog
+                newReaction.Downvote = true;
+                newReaction.CreatedAt = DateTime.Now;
+
+                // Add the new Reaction to DbContext and save changes
+                _dbContext.BlogReactions.Add(newReaction);
+            }
+            else
+            {
+                if (existingReaction.Downvote)
+                {
+                    // If user previously upvoted, toggle off the upvote
+                    existingReaction.Downvote = false;
+                }
+                else
+                {
+                    // If user previously downvoted or had no reaction, toggle on the upvote
+                    existingReaction.Downvote = true;
+                    existingReaction.CreatedAt = DateTime.Now;
+                    existingReaction.Upvote = false; // Reset downvote if applicable
+                }
+            }
+
+            int updatedBlogPopularity = BlogPopularityCalculator.CalculateBlogPopularity(blogId, _dbContext.BlogReactions, _dbContext.Comments);
+
+            // Update the BlogPopularity property of the blog post
+            blog.Popularity = updatedBlogPopularity;
+            // Save changes to persist the new comment in the database
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(); // Return 200 OK if the comment was added successfully
+        }
+
+
+        private bool BlogExists(int id)
+        {
+            return _dbContext.Blogs.Any(e => e.BlogID == id);
+        }
+
+
+
     }
 }

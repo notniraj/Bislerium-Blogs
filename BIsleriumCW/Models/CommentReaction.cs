@@ -7,9 +7,12 @@ namespace BIsleriumCW.Models
         [Key]
         public int CommentReactId { get; set; }
 
-        public bool HasLiked { get; set; }
+        public bool Upvote { get; set; } = false;
+        public bool Downvote { get; set; } = false;
 
-        //Fk is user and comment
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public string? UserId { get; set; }
+        public ApplicationUser? User { get; set; }
 
         public int CommentID { get; set; } //FK
 

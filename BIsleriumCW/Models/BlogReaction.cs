@@ -7,11 +7,12 @@ namespace BIsleriumCW.Models
         [Key]
         public int BlogReactId { get; set; }
 
-        public int UpVote{ get; set; }
+        public bool Upvote { get; set; } = false;
+        public bool Downvote { get; set; } = false;
 
-        public int DownVote { get; set; }
-
-        public double Popularity { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public string? UserId { get; set; }
+        public ApplicationUser? User { get; set; }
 
         //FK is blog and user
 
