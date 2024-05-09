@@ -10,5 +10,9 @@ namespace BIsleriumCW.Interfaces
         Task<bool> ValidateUserAsync(UserLoginDto loginDto);
         Task<string> GenerateTokenAsync();
         public string GetUserId();
+
+        Task ForgotPassword(string email);
+        Task ChangePassowrd(string currentPassword, string newPassword);
+        Task ResetPassword(string email, string token, string password);
     }
 } 
