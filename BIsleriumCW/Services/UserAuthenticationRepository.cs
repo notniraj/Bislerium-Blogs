@@ -50,7 +50,7 @@ namespace BIsleriumCW.Services
             if (result.Succeeded)
             {
                 // Assign "Blogger" role to the user
-                await AssignRoleToUser(user, "Blogger");
+                await AssignRoleToUser(user, userRegistration.Role);
             }
             return result;
         }
