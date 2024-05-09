@@ -412,7 +412,7 @@ namespace BIsleriumCW.Controllers
             blog.Popularity = updatedBlogPopularity;
             // Save changes to persist the new comment in the database
             await _dbContext.SaveChangesAsync();
-            int downvotes = _dbContext.BlogReactions.Count(r => r.BlogId == blogId && r.Upvote);
+            int downvotes = _dbContext.BlogReactions.Count(r => r.BlogId == blogId && r.Downvote);
             blog.DownVote = downvotes;
             await _dbContext.SaveChangesAsync();
             return Ok(downvotes); // Return 200 OK if the comment was added successfully
