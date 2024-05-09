@@ -3,6 +3,7 @@ using BIsleriumCW.Interfaces;
 using BIsleriumCW.Migrations;
 using BIsleriumCW.Models;
 using BIsleriumCW.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -419,7 +420,48 @@ namespace BIsleriumCW.Controllers
             return _dbContext.Blogs.Any(e => e.BlogID == id);
         }
 
+        [HttpGet]
+        [Route("GetUserBlogs")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetUserBlogs(String UserId)
+        {
+            try
+            {
+                //var userId = _userAuthenticationRepository.GetUserId();
+                var userId = UserId;
 
+                // Retrieve blogs belonging to the current user
+                var userBlogs = await _dbContext.Blogs
+                    .Where(b => b.UserId == userId)
+                    .Include(b => b.User) // Include the User navigation property
+                    .Select(b => new
+                    {
+                        b.BlogID,
+                        b.BlogTitle,
+                        b.BlogDescription,
+                        b.BlogImageUrl,
+                        b.CreatedAt,
+                        b.UpdatedAt,
+                        b.UpVote,
+                        b.DownVote,
+                        b.Popularity,
+                        b.IsDeleted,
+                        User = new
+                        {
+                            UserId = b.User.Id,
+                            UserName = b.User.UserName,
+                            Email = b.User.Email
+                        }
+                    })
+                    .ToListAsync();
+
+                return Ok(userBlogs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while fetching the user's blogs.");
+            }
+        }
 
     }
 }
