@@ -1,0 +1,14 @@
+*.cache
+.vs/
+*/obj
+*/bin
+<<<<<<< HEAD
+**/bin/
+bin/
+=======
+<<<<<<< HEAD
+**/bin/*
+=======
+bin/
+
+
