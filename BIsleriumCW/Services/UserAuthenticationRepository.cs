@@ -40,7 +40,7 @@ namespace BIsleriumCW.Services
                 await _roleManager.CreateAsync(new IdentityRole(roleName));
             }
 
-            await _userManager.AddToRoleAsync(user, roleName); //Anish
+            await _userManager.AddToRoleAsync(user, roleName);
         }
 
         public async Task<IdentityResult> RegisterUserAsync(UserRegistrationDto userRegistration)
@@ -50,7 +50,19 @@ namespace BIsleriumCW.Services
             if (result.Succeeded)
             {
                 // Assign "Blogger" role to the user
-                await AssignRoleToUser(user, userRegistration.Role);
+                await AssignRoleToUser(user, userRegistration.Role ?? "Blogger");
+            }
+            return result;
+        }
+
+        public async Task<IdentityResult> RegisterAdminAsync(UserRegistrationDto userRegistration)
+        {
+            var user = _mapper.Map<ApplicationUser>(userRegistration);
+            var result = await _userManager.CreateAsync(user, userRegistration.Password);
+            if (result.Succeeded)
+            {
+                // Assign "Blogger" role to the user
+                await AssignRoleToUser(user, userRegistration.Role ?? "Admin");
             }
             return result;
         }

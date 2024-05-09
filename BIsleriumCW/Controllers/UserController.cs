@@ -130,10 +130,11 @@ namespace BIsleriumCW.Controllers
         }
 
         [HttpGet]
-        [Route("GetUser")]
-        public async Task<IActionResult> GetUserById()
+        [Route("GetUser/{Id}")]
+        public async Task<IActionResult> GetUserById(String Id)
         {
-            var userID = _userAuthenticationRepository.GetUserId();
+            //var userID = _userAuthenticationRepository.GetUserId();
+            var userID = Id;
             var user = await _userManager.FindByIdAsync(userID);
 
             if (user == null)

@@ -3,6 +3,7 @@ using BIsleriumCW.Interfaces;
 using BIsleriumCW.Migrations;
 using BIsleriumCW.Models;
 using BIsleriumCW.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -358,6 +359,8 @@ namespace BIsleriumCW.Controllers
             // Save changes to persist the new comment in the database
             await _dbContext.SaveChangesAsync();
             int upvotes = _dbContext.BlogReactions.Count(r => r.BlogId == blogId && r.Upvote);
+            blog.UpVote = upvotes;
+            await _dbContext.SaveChangesAsync();
             return Ok(upvotes); // Return 200 OK if the comment was added successfully
         }
 
@@ -409,7 +412,9 @@ namespace BIsleriumCW.Controllers
             blog.Popularity = updatedBlogPopularity;
             // Save changes to persist the new comment in the database
             await _dbContext.SaveChangesAsync();
-            int downvotes = _dbContext.BlogReactions.Count(r => r.BlogId == blogId && r.Upvote);
+            int downvotes = _dbContext.BlogReactions.Count(r => r.BlogId == blogId && r.Downvote);
+            blog.DownVote = downvotes;
+            await _dbContext.SaveChangesAsync();
             return Ok(downvotes); // Return 200 OK if the comment was added successfully
         }
 
@@ -419,7 +424,98 @@ namespace BIsleriumCW.Controllers
             return _dbContext.Blogs.Any(e => e.BlogID == id);
         }
 
+        [HttpGet]
+        [Route("GetUserBlogs")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetUserBlogs(String UserId)
+        {
+            try
+            {
+                //var userId = _userAuthenticationRepository.GetUserId();
+                var userId = UserId;
 
+                // Retrieve blogs belonging to the current user
+                var userBlogs = await _dbContext.Blogs
+                    .Where(b => b.UserId == userId)
+                    .Include(b => b.User) // Include the User navigation property
+                    .Select(b => new
+                    {
+                        b.BlogID,
+                        b.BlogTitle,
+                        b.BlogDescription,
+                        b.BlogImageUrl,
+                        b.CreatedAt,
+                        b.UpdatedAt,
+                        b.UpVote,
+                        b.DownVote,
+                        b.Popularity,
+                        b.IsDeleted,
+                        User = new
+                        {
+                            UserId = b.User.Id,
+                            UserName = b.User.UserName,
+                            Email = b.User.Email
+                        }
+                    })
+                    .ToListAsync();
+
+                return Ok(userBlogs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while fetching the user's blogs.");
+            }
+        }
+
+        [HttpGet("{blogId}/upvoteCount")]
+        public async Task<ActionResult<int>> GetUpvoteCount(int blogId)
+        {
+            var upvoteCount = await _dbContext.Blogs
+                .Where(b => b.BlogID == blogId)
+                .Select(b => b.UpVote)
+                .FirstOrDefaultAsync();
+
+            if (upvoteCount == 0)
+            {
+                return NotFound(); // No upvotes found for the specified blog
+            }
+
+            return Ok(upvoteCount);
+        }
+
+        // Endpoint to retrieve downvote count of a blog
+        [HttpGet("{blogId}/downvoteCount")]
+        public async Task<ActionResult<int>> GetDownvoteCount(int blogId)
+        {
+            var downvoteCount = await _dbContext.Blogs
+                .Where(b => b.BlogID == blogId)
+                .Select(b => b.DownVote)
+                .FirstOrDefaultAsync();
+
+            if (downvoteCount == 0)
+            {
+                return NotFound(); // No downvotes found for the specified blog
+            }
+
+            return Ok(downvoteCount);
+        }
+
+        // Endpoint to retrieve popularity of a blog
+        [HttpGet("{blogId}/popularity")]
+        public async Task<ActionResult<double>> GetPopularity(int blogId)
+        {
+            var popularity = await _dbContext.Blogs
+                .Where(b => b.BlogID == blogId)
+                .Select(b => b.Popularity)
+                .FirstOrDefaultAsync();
+
+            if (popularity == 0)
+            {
+                return NotFound(); // Popularity not calculated for the specified blog
+            }
+
+            return Ok(popularity);
+        }
 
     }
 }

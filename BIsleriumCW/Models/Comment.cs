@@ -14,6 +14,11 @@ namespace BIsleriumCW.Models
 
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
+        public int UpVote { get; set; }
+
+        public int DownVote { get; set; }
+
+
         //FK is user and blog
 
         public int BlogId { get; set; } //FK

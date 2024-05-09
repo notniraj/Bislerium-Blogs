@@ -34,6 +34,8 @@ namespace BIsleriumCW.Controllers
                     UpdatedAt = DateTime.UtcNow,
                     BlogId = request.BlogId, // Assuming you want to associate the comment with a specific blog
                     UserId = _userAuthenticationRepository.GetUserId()
+                    UpVote = 0,
+                    DownVote = 0,
                 };
 
                 dbContext.Comments.Add(newComment);
@@ -181,7 +183,7 @@ namespace BIsleriumCW.Controllers
         {
             // Call the method to add the comment to the blog
             // Retrieve the blog from the database
-            var blog = await dbContext.Comments.FindAsync(commentId);
+            var comment = await dbContext.Comments.FindAsync(commentId);
             string getCurrentUserId = _userAuthenticationRepository.GetUserId();
             var existingReaction = dbContext.CommentReactions.FirstOrDefault(r => r.UserId == getCurrentUserId && r.CommentID == commentId);
             // Create a new Reaction
@@ -220,8 +222,11 @@ namespace BIsleriumCW.Controllers
 
             // Save changes to persist the new comment in the database
             await dbContext.SaveChangesAsync();
+            int downvote = dbContext.CommentReactions.Count(r => r.CommentID == commentId && r.Downvote);
+            comment.DownVote = downvote;
+            await dbContext.SaveChangesAsync();
 
-            return Ok(); // Return 200 OK if the comment was added successfully
+            return Ok(downvote); // Return 200 OK if the comment was added successfully
         }
 
         [HttpPost("{commentId}/upvote")]
@@ -229,7 +234,7 @@ namespace BIsleriumCW.Controllers
         {
             // Call the method to add the comment to the blog
             // Retrieve the blog from the database
-            var blog = await dbContext.Comments.FindAsync(commentId);
+            var comment = await dbContext.Comments.FindAsync(commentId);
             string getCurrentUserId = _userAuthenticationRepository.GetUserId();
             var existingReaction = dbContext.CommentReactions.FirstOrDefault(r => r.UserId == getCurrentUserId && r.CommentID == commentId);
             // Create a new Reaction
@@ -266,15 +271,52 @@ namespace BIsleriumCW.Controllers
 
 
 
-            // Save changes to persist the new comment in the database
+            // Save changes to persist the new comment in the databaseint downvotes = _dbContext.BlogReactions.Count(r => r.BlogId == blogId && r.Upvote);
+
+
+            await dbContext.SaveChangesAsync();
+            int upvote = dbContext.CommentReactions.Count(r => r.CommentID == commentId && r.Upvote);
+            comment.UpVote = upvote;
             await dbContext.SaveChangesAsync();
 
-            return Ok(); // Return 200 OK if the comment was added successfully
+            return Ok(upvote); // Return 200 OK if the comment was added successfully
         }
 
         private bool CommentExists(int id)
         {
             return dbContext.Comments.Any(e => e.CommentId == id);
+        }
+
+        [HttpGet("{commentId}/downvoteCount")]
+        public async Task<ActionResult<int>> GetCommentDownvoteCount(int commentId)
+        {
+            var downvoteCount = await dbContext.Comments
+                .Where(c => c.CommentId == commentId)
+                .Select(c => c.DownVote)
+                .FirstOrDefaultAsync();
+
+            if (downvoteCount == 0)
+            {
+                return NotFound(); // No downvotes found for the specified comment
+            }
+
+            return Ok(downvoteCount);
+        }
+
+        [HttpGet("{commentId}/upvoteCount")]
+        public async Task<ActionResult<int>> GetCommentUpvoteCount(int commentId)
+        {
+            var upvoteCount = await dbContext.Comments
+                .Where(c => c.CommentId == commentId)
+                .Select(c => c.UpVote)
+                .FirstOrDefaultAsync();
+
+            if (upvoteCount == 0)
+            {
+                return NotFound(); // No upvotes found for the specified comment
+            }
+
+            return Ok(upvoteCount);
         }
 
     }
