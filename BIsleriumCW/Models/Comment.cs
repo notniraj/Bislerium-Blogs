@@ -10,6 +10,10 @@ namespace BIsleriumCW.Models
 
         public string Comments { get; set; }
 
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+
         //FK is user and blog
 
         public int BlogId { get; set; } //FK

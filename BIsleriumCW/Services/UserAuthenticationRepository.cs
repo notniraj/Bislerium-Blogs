@@ -20,13 +20,17 @@ namespace BIsleriumCW.Services
         private ApplicationUser? _user;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public UserAuthenticationRepository(UserManager<ApplicationUser> userManager, IMapper mapper, IConfiguration configuration, RoleManager<IdentityRole> roleManager, IHttpContextAccessor httpContextAccessor)
+
+        private readonly IEmailService _emailService;
+
+        public UserAuthenticationRepository(UserManager<ApplicationUser> userManager, IMapper mapper, IConfiguration configuration, RoleManager<IdentityRole> roleManager, IHttpContextAccessor httpContextAccessor, IEmailService emailService)
         {
             _userManager = userManager;
             _mapper = mapper;
             _configuration = configuration;
             _roleManager = roleManager;
             _httpContextAccessor = httpContextAccessor;
+            _emailService = emailService;
         }
 
         private async Task AssignRoleToUser(ApplicationUser user, string roleName)
@@ -36,7 +40,7 @@ namespace BIsleriumCW.Services
                 await _roleManager.CreateAsync(new IdentityRole(roleName));
             }
 
-            await _userManager.AddToRoleAsync(user, roleName);
+            await _userManager.AddToRoleAsync(user, roleName); //Anish
         }
 
         public async Task<IdentityResult> RegisterUserAsync(UserRegistrationDto userRegistration)
@@ -70,11 +74,7 @@ namespace BIsleriumCW.Services
         {
             var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, _user.Id),
-            new Claim("UserId", _user.Id),
-            new Claim("Email", _user.Email),
-            new Claim("FirstName", _user.FirstName),
-            new Claim("LastName", _user.LastName),
+            new Claim(ClaimTypes.Name, _user.Id)
         };
             var roles = await _userManager.GetRolesAsync(_user);
             foreach (var role in roles)
@@ -110,6 +110,59 @@ namespace BIsleriumCW.Services
         {
             var userIdClaim = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             return userIdClaim;
+        }
+
+        public async Task ForgotPassword(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var token = ToUrlSafeBase64(passwordResetToken);
+                await _emailService.SendForgotPasswordEmailAsync(user.FirstName, email, token);
+            }
+        }
+
+        public async Task ResetPassword(string email, string token, string password)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var passwordResetToken = FromUrlSafeBase64(token);
+                var result = await _userManager.ResetPasswordAsync(user, passwordResetToken, password);
+
+                ValidateIdentityResult(result);
+            }
+        }
+
+        private void ValidateIdentityResult(IdentityResult result)
+        {
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(x => x.Description);
+                throw new Exception(errors.ToString());
+            }
+        }
+
+        private static string ToUrlSafeBase64(string base64String)
+        {
+            return base64String.Replace('+', '-').Replace('/', '_').Replace('=', '*');
+        }
+
+        private static string FromUrlSafeBase64(string urlSafeBase64String)
+        {
+            return urlSafeBase64String.Replace('-', '+').Replace('_', '/').Replace('*', '=');
+        }
+
+        public async Task ChangePassowrd(string currentPassword, string newPassword)
+        {
+            string getCurrentUserId = GetUserId();
+            var user = await _userManager.FindByIdAsync(getCurrentUserId);
+            if (user != null)
+            {
+                var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+                ValidateIdentityResult(result);
+            }
         }
     }
 }

@@ -16,8 +16,9 @@ namespace BIsleriumCW.Services
         private IMapper _mapper;
         private IConfiguration _configuration;
         private IHttpContextAccessor _httpContextAccessor;
+        private IEmailService _emailService;
 
-        public RepositoryManager(BisleriumDbContext bisleriumDbContext, UserManager<ApplicationUser> userManager, IMapper mapper, IConfiguration configuration, RoleManager<IdentityRole> roleManager, IHttpContextAccessor httpContextAccessor)
+        public RepositoryManager(BisleriumDbContext bisleriumDbContext, UserManager<ApplicationUser> userManager, IMapper mapper, IConfiguration configuration, RoleManager<IdentityRole> roleManager, IHttpContextAccessor httpContextAccessor, IEmailService emailService)
         {
             _dbContext = bisleriumDbContext;
             _userManager = userManager;
@@ -25,13 +26,15 @@ namespace BIsleriumCW.Services
             _configuration = configuration;
             _roleManager = roleManager;
             _httpContextAccessor = httpContextAccessor;
+            _emailService = emailService;
+
         }
         public IUserAuthenticationRepository UserAuthentication
         {
             get
             {
                 if (_userAuthenticationRepository is null)
-                    _userAuthenticationRepository = new UserAuthenticationRepository(_userManager, _mapper, _configuration, _roleManager, _httpContextAccessor);
+                    _userAuthenticationRepository = new UserAuthenticationRepository(_userManager, _mapper, _configuration, _roleManager, _httpContextAccessor, _emailService);
                 return _userAuthenticationRepository;
             }
         }
