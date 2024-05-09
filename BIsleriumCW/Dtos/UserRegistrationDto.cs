@@ -15,6 +15,6 @@ namespace BIsleriumCW.Dtos
         public string? Email { get; init; }
         public string? PhoneNumber { get; init; }
 
-        public string? Role { get; init; } = "Blogger";
+        public string? Role { get; init; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BIsleriumCW.Data;
 using BIsleriumCW.Dtos;
+using BIsleriumCW.Filters;
 using BIsleriumCW.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,15 @@ namespace BIsleriumCW.Controllers
         {
             _context = context;
             _repository = repositoryManager;
+        }
+
+        [HttpPost("RegisterAdmin")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> RegisterAdmin([FromBody] UserRegistrationDto userRegistration)
+        {
+
+            var userResult = await _repository.UserAuthentication.RegisterAdminAsync(userRegistration);
+            return !userResult.Succeeded ? new BadRequestObjectResult(userResult) : StatusCode(201);
         }
 
         [HttpGet("allTime")]

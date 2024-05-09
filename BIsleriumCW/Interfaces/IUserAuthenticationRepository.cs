@@ -7,6 +7,8 @@ namespace BIsleriumCW.Interfaces
     public interface IUserAuthenticationRepository
     {
         Task<IdentityResult> RegisterUserAsync(UserRegistrationDto userForRegistration);
+
+        Task<IdentityResult> RegisterAdminAsync(UserRegistrationDto userForRegistration);
         Task<bool> ValidateUserAsync(UserLoginDto loginDto);
         Task<string> GenerateTokenAsync();
         public string GetUserId();
