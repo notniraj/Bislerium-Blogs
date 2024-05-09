@@ -183,12 +183,12 @@ namespace BIsleriumCW.Controllers
             // Retrieve the blog from the database
             var blog = await dbContext.Comments.FindAsync(commentId);
             string getCurrentUserId = _userAuthenticationRepository.GetUserId();
-            var existingReaction = dbContext.CommentReactions.FirstOrDefault(r => r.UserId == getCurrentUserId && r.CommentId == commentId);
+            var existingReaction = dbContext.CommentReactions.FirstOrDefault(r => r.UserId == getCurrentUserId && r.CommentID == commentId);
             // Create a new Reaction
             var newReaction = new CommentReaction
             {
                 UserId = getCurrentUserId,
-                CommentId = commentId
+                CommentID = commentId
             };
             if (existingReaction == null)
             {
@@ -231,12 +231,12 @@ namespace BIsleriumCW.Controllers
             // Retrieve the blog from the database
             var blog = await dbContext.Comments.FindAsync(commentId);
             string getCurrentUserId = _userAuthenticationRepository.GetUserId();
-            var existingReaction = dbContext.CommentReactions.FirstOrDefault(r => r.UserId == getCurrentUserId && r.CommentId == commentId);
+            var existingReaction = dbContext.CommentReactions.FirstOrDefault(r => r.UserId == getCurrentUserId && r.CommentID == commentId);
             // Create a new Reaction
             var newReaction = new CommentReaction
             {
                 UserId = getCurrentUserId,
-                CommentId = commentId
+                CommentID = commentId
             };
             if (existingReaction == null)
             {
