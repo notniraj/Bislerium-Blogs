@@ -311,6 +311,14 @@ namespace BIsleriumCW.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Blog>>> GetRecentBlogs()
+        {
+            // Order blogs by CreatedAt in descending order
+            var blogs = await _dbContext.Blogs.OrderByDescending(b => b.CreatedAt).ToListAsync();
+            return blogs;
+        }
+
         [HttpPost("{blogId}/upvote")]
         public async Task<ActionResult> Upvote(int blogId)
         {
