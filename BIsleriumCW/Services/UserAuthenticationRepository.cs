@@ -86,7 +86,12 @@ namespace BIsleriumCW.Services
         {
             var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, _user.Id)
+            new Claim(ClaimTypes.Name, _user.Id),
+            new Claim("UserId", _user.Id),
+            new Claim("Email", _user.Email),
+            new Claim("FirstName", _user.FirstName),
+            new Claim("LastName", _user.LastName),
+
         };
             var roles = await _userManager.GetRolesAsync(_user);
             foreach (var role in roles)
@@ -166,9 +171,9 @@ namespace BIsleriumCW.Services
             return urlSafeBase64String.Replace('-', '+').Replace('_', '/').Replace('*', '=');
         }
 
-        public async Task ChangePassowrd(string currentPassword, string newPassword)
+        public async Task ChangePassowrd(string currentPassword, string newPassword, string userId)
         {
-            string getCurrentUserId = GetUserId();
+            string getCurrentUserId = userId;
             var user = await _userManager.FindByIdAsync(getCurrentUserId);
             if (user != null)
             {

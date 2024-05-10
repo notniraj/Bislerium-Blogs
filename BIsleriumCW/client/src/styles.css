@@ -85,8 +85,13 @@ button {
     background-color: rgba(255,228,225,.4);
 }
 
+.Toastify__toast-body{
+    width: 75%;
+}
 
-
+.Toastify__close-button{
+    width: 20px;
+}
 /* Responsive Design */
 @media (max-width: 600px) {
     .auth-container {

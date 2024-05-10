@@ -35,10 +35,10 @@ namespace BIsleriumCW.Controllers
         }
 
         [HttpPut]
-        [Route("UpdateUser")]
-        public async Task<IActionResult> UpdateUser(ApplicationUser updatedUser)
+        [Route("UpdateUser/{UserId}")]
+        public async Task<IActionResult> UpdateUser(ApplicationUser updatedUser, String UserId)
         {
-            var userID = _userAuthenticationRepository.GetUserId();
+            var userID = UserId;
             Console.WriteLine(userID);
             var user = await _userManager.FindByIdAsync(userID);
 
@@ -74,10 +74,10 @@ namespace BIsleriumCW.Controllers
         }
 
         [HttpPut]
-        [Route("ChangePassword")]
-        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
+        [Route("ChangePassword/")]
+        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword, String UserId)
         {
-            var userID = _userAuthenticationRepository.GetUserId();
+            var userID = UserId;/*_userAuthenticationRepository.GetUserId();*/
             var user = await _userManager.FindByIdAsync(userID);
 
             if (user == null)
@@ -99,10 +99,10 @@ namespace BIsleriumCW.Controllers
 
 
         [HttpDelete]
-        [Route("DeleteUser")]
-        public async Task<IActionResult> DeleteUser()
+        [Route("DeleteUser/")]
+        public async Task<IActionResult> DeleteUser(String UserId)
         {
-            var userID = _userAuthenticationRepository.GetUserId();
+            var userID = UserId;/*_userAuthenticationRepository.GetUserId();*/
             var user = await _userManager.FindByIdAsync(userID);
 
             if (user == null)
@@ -144,8 +144,6 @@ namespace BIsleriumCW.Controllers
 
             return Ok(user);
         }
-
-
 
     }
 

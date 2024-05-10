@@ -1,6 +1,7 @@
 ﻿using BIsleriumCW.Data;
 using BIsleriumCW.Interfaces;
 using BIsleriumCW.Models;
+using BIsleriumCW.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,12 +34,22 @@ namespace BIsleriumCW.Controllers
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     BlogId = request.BlogId, // Assuming you want to associate the comment with a specific blog
-                    UserId = _userAuthenticationRepository.GetUserId()
+                    //UserId = _userAuthenticationRepository.GetUserId(),
+                    UserId = request.UserId,
                     UpVote = 0,
                     DownVote = 0,
                 };
 
                 dbContext.Comments.Add(newComment);
+                await dbContext.SaveChangesAsync();
+                int updatedBlogPopularity = BlogPopularityCalculator.CalculateBlogPopularity(request.BlogId, dbContext.BlogReactions, dbContext.Comments);
+
+                // Update the BlogPopularity property of the blog post
+                //blog.Popularity = updatedBlogPopularity;
+                var blog = await dbContext.Blogs.FindAsync(request.BlogId);
+                blog.Popularity = updatedBlogPopularity;
+
+                // Save changes to persist the new comment in the database
                 await dbContext.SaveChangesAsync();
 
                 return Ok(newComment);
@@ -116,6 +127,7 @@ namespace BIsleriumCW.Controllers
                                               {
                                                   comment.CommentId,
                                                   comment.Comments,
+                                                  comment.CreatedAt,
                                                   User = new
                                                   {
                                                       UserId = comment.User.Id,
@@ -179,12 +191,12 @@ namespace BIsleriumCW.Controllers
 
         // naya fxns
         [HttpPost("{commentId}/downvote")]
-        public async Task<ActionResult> Downvote(int commentId)
+        public async Task<ActionResult> Downvote(int commentId, String UserId)
         {
             // Call the method to add the comment to the blog
             // Retrieve the blog from the database
             var comment = await dbContext.Comments.FindAsync(commentId);
-            string getCurrentUserId = _userAuthenticationRepository.GetUserId();
+            string getCurrentUserId = UserId; /*_userAuthenticationRepository.GetUserId();*/
             var existingReaction = dbContext.CommentReactions.FirstOrDefault(r => r.UserId == getCurrentUserId && r.CommentID == commentId);
             // Create a new Reaction
             var newReaction = new CommentReaction
@@ -230,12 +242,12 @@ namespace BIsleriumCW.Controllers
         }
 
         [HttpPost("{commentId}/upvote")]
-        public async Task<ActionResult> Upvote(int commentId)
+        public async Task<ActionResult> Upvote(int commentId, String UserId)
         {
             // Call the method to add the comment to the blog
             // Retrieve the blog from the database
             var comment = await dbContext.Comments.FindAsync(commentId);
-            string getCurrentUserId = _userAuthenticationRepository.GetUserId();
+            string getCurrentUserId = UserId; /*_userAuthenticationRepository.GetUserId();*/
             var existingReaction = dbContext.CommentReactions.FirstOrDefault(r => r.UserId == getCurrentUserId && r.CommentID == commentId);
             // Create a new Reaction
             var newReaction = new CommentReaction

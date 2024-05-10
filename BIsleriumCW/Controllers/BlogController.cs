@@ -11,6 +11,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using System.Data;
+using System.Reflection.Metadata;
 
 namespace BIsleriumCW.Controllers
 {
@@ -216,12 +217,8 @@ namespace BIsleriumCW.Controllers
                                                       blog.DownVote,
                                                       blog.Popularity,
                                                       blog.IsDeleted,
-                                                      User = new
-                                                      {
-                                                          UserId = blog.User.Id,
-                                                          UserName = blog.User.UserName,
-                                                          Email = blog.User.Email
-                                                      }
+                                                      UserId = blog.User.Id, // Only UserId instead of the entire User object
+                                                      UserName = blog.User.UserName
                                                   })
                                                   .ToListAsync();
 
@@ -234,43 +231,39 @@ namespace BIsleriumCW.Controllers
         }
 
         [HttpGet]
-        [Route("ListRandomActiveBlogs")]
-        public async Task<IActionResult> GetRandomActiveBlogs()
-        {
-            try
-            {
-                var activeBlogs = await _dbContext.Blogs
-                                                  .Where(blog => !blog.IsDeleted) // Filter where IsDeleted is false
-                                                  .Include(blog => blog.User) // Include the User navigation property
-                                                  .OrderBy(o => Guid.NewGuid()) // Randomize the order
-                                                  .Select(blog => new
-                                                  {
-                                                      blog.BlogID,
-                                                      blog.BlogTitle,
-                                                      blog.BlogDescription,
-                                                      blog.BlogImageUrl,
-                                                      blog.CreatedAt,
-                                                      blog.UpdatedAt,
-                                                      blog.UpVote,
-                                                      blog.DownVote,
-                                                      blog.Popularity,
-                                                      blog.IsDeleted,
-                                                      User = new
-                                                      {
-                                                          UserId = blog.User.Id,
-                                                          UserName = blog.User.UserName,
-                                                          Email = blog.User.Email
-                                                      }
-                                                  })
-                                                  .ToListAsync();
+[Route("ListRandomActiveBlogs")]
+public async Task<IActionResult> GetRandomActiveBlogs()
+{
+    try
+    {
+        var activeBlogs = await _dbContext.Blogs
+                                          .Where(blog => !blog.IsDeleted) // Filter where IsDeleted is false
+                                          .Include(blog => blog.User) // Include the User navigation property
+                                          .OrderBy(o => Guid.NewGuid()) // Randomize the order
+                                          .Select(blog => new
+                                          {
+                                              blog.BlogID,
+                                              blog.BlogTitle,
+                                              blog.BlogDescription,
+                                              blog.BlogImageUrl,
+                                              blog.CreatedAt,
+                                              blog.UpdatedAt,
+                                              blog.UpVote,
+                                              blog.DownVote,
+                                              blog.Popularity,
+                                              blog.IsDeleted,
+                                              UserId = blog.User.Id, // Only UserId instead of the entire User object
+                                              UserName = blog.User.UserName
+                                          })
+                                          .ToListAsync();
 
-                return Ok(activeBlogs); // Return the list of random active blogs with user details
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "An error occurred while fetching the random active blogs."); // Return an error response
-            }
-        }
+        return Ok(activeBlogs); // Return the list of random active blogs with user details
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, "An error occurred while fetching the random active blogs."); // Return an error response
+    }
+}
 
         [HttpGet]
         [Route("ListActiveBlogsByPopularity")]
@@ -294,12 +287,8 @@ namespace BIsleriumCW.Controllers
                                                       blog.DownVote,
                                                       blog.Popularity,
                                                       blog.IsDeleted,
-                                                      User = new
-                                                      {
-                                                          UserId = blog.User.Id,
-                                                          UserName = blog.User.UserName,
-                                                          Email = blog.User.Email
-                                                      }
+                                                      UserId = blog.User.Id, // Only UserId instead of the entire User object
+                                                      UserName = blog.User.UserName
                                                   })
                                                   .ToListAsync();
 
@@ -312,12 +301,12 @@ namespace BIsleriumCW.Controllers
         }
 
         [HttpPost("{blogId}/upvote")]
-        public async Task<ActionResult> Upvote(int blogId)
+        public async Task<ActionResult> Upvote(int blogId, string UserId)
         {
             // Call the method to add the comment to the blog
             // Retrieve the blog from the database
             var blog = await _dbContext.Blogs.FindAsync(blogId);
-            string getCurrentUserId = _userAuthenticationRepository.GetUserId();
+            string getCurrentUserId = UserId; /*_userAuthenticationRepository.GetUserId();*/
             var existingReaction = _dbContext.BlogReactions.FirstOrDefault(r => r.UserId == getCurrentUserId && r.BlogId == blogId);
             // Create a new Reaction
             var newReaction = new BlogReaction
@@ -366,12 +355,12 @@ namespace BIsleriumCW.Controllers
 
 
         [HttpPost("{blogId}/downvote")]
-        public async Task<ActionResult> Downvote(int blogId)
+        public async Task<ActionResult> Downvote(int blogId, string UserId)
         {
             // Call the method to add the comment to the blog
             // Retrieve the blog from the database
             var blog = await _dbContext.Blogs.FindAsync(blogId);
-            string getCurrentUserId = _userAuthenticationRepository.GetUserId();
+            string getCurrentUserId = UserId; /*_userAuthenticationRepository.GetUserId();*/
             var existingReaction = _dbContext.BlogReactions.FirstOrDefault(r => r.UserId == getCurrentUserId && r.BlogId == blogId);
             // Create a new Reaction
             var newReaction = new BlogReaction
@@ -425,7 +414,7 @@ namespace BIsleriumCW.Controllers
         }
 
         [HttpGet]
-        [Route("GetUserBlogs")]
+        [Route("GetUserBlogs/{UserId}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetUserBlogs(String UserId)
         {
@@ -436,7 +425,7 @@ namespace BIsleriumCW.Controllers
 
                 // Retrieve blogs belonging to the current user
                 var userBlogs = await _dbContext.Blogs
-                    .Where(b => b.UserId == userId)
+                    .Where(b => b.UserId == userId && !b.IsDeleted)
                     .Include(b => b.User) // Include the User navigation property
                     .Select(b => new
                     {
@@ -450,12 +439,8 @@ namespace BIsleriumCW.Controllers
                         b.DownVote,
                         b.Popularity,
                         b.IsDeleted,
-                        User = new
-                        {
-                            UserId = b.User.Id,
-                            UserName = b.User.UserName,
-                            Email = b.User.Email
-                        }
+                        UserId = b.User.Id, // Only UserId instead of the entire User object
+                        UserName = b.User.UserName
                     })
                     .ToListAsync();
 
@@ -515,6 +500,46 @@ namespace BIsleriumCW.Controllers
             }
 
             return Ok(popularity);
+        }
+
+        [HttpGet]
+        [Route("ListActiveBlogsByRecency")]
+        public async Task<ActionResult<IEnumerable<Blog>>> GetRecentBlogs()
+        {
+            //// Order blogs by CreatedAt in descending order
+            //var blogs = await _dbContext.Blogs.OrderByDescending(b => b.CreatedAt).ToListAsync();
+            //return blogs;
+
+            try
+            {
+                var activeBlogs = await _dbContext.Blogs
+                                                  .Where(blog => !blog.IsDeleted) // Filter where IsDeleted is false
+                                                  .Include(blog => blog.User) // Include the User navigation property
+                                                  .OrderByDescending(blog => blog.CreatedAt) // Order by Popularity (highest to lowest)
+                                                  .Select(blog => new
+                                                  {
+                                                      blog.BlogID,
+                                                      blog.BlogTitle,
+                                                      blog.BlogDescription,
+                                                      blog.BlogImageUrl,
+                                                      blog.CreatedAt,
+                                                      blog.UpdatedAt,
+                                                      blog.UpVote,
+                                                      blog.DownVote,
+                                                      blog.Popularity,
+                                                      blog.IsDeleted,
+                                                      UserId = blog.User.Id, // Only UserId instead of the entire User object
+                                                      UserName = blog.User.UserName
+                                                  })
+                                                  .ToListAsync();
+
+                return Ok(activeBlogs); // Return the list of active blogs by popularity with user details
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while fetching the active blogs by popularity."); // Return an error response
+            }
+
         }
 
     }

@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useHistory } from 'react-router-dom';
 import axios from 'axios'; // Import Axios
 import TextInput from '../Common/TextInput';
 
@@ -8,6 +8,8 @@ const Login = () => {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false); // State to manage password visibility
     const navigate = useNavigate();
+    
+
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,6 +35,8 @@ const Login = () => {
 
                 // Redirect to the home page or any other page upon successful login
                 navigate('/');
+                // Reload the page
+                window.location.reload();
             } else {
                 throw new Error('Login failed');
             }

@@ -76,10 +76,10 @@ const ProfilePage = () => {
             console.log(formData.oldPassword);
             console.log(formData.newPassword);
             const response = await axios.post('https://localhost:7212/api/user-authentication/change-password', {
-                    UserId: userId,
-                    currentPassword: formData.oldPassword,
-                    newPassword: formData.newPassword
-                
+                UserId: userId,
+                currentPassword: formData.oldPassword,
+                newPassword: formData.newPassword
+
             });
             console.log(response);
             toast.success(response.data);
@@ -91,7 +91,7 @@ const ProfilePage = () => {
 
     const handleDeleteProfile = async () => {
         try {
-            
+
             const response = await axios.delete('https://localhost:7212/api/User/DeleteUser', {
                 UserId: userId
             });
@@ -140,28 +140,30 @@ const ProfilePage = () => {
                     {editMode ? (
                         <div>
                             <hr className="text-white" />
-                            <div className="form-group">
-                                <label htmlFor="firstName" className="text-white">First Name:</label>
-                                <input type="text" name="firstName" id="firstName" className="form-control" value={formData.firstName} onChange={handleChange} />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="lastName" className="text-white">Last Name:</label>
-                                <input type="text" name="lastName" id="lastName" className="form-control" value={formData.lastName} onChange={handleChange} />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="userName" className="text-white">Username:</label>
-                                <input type="text" name="userName" id="userName" className="form-control" value={formData.userName} onChange={handleChange} />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="email" className="text-white">Email:</label>
-                                <input type="email" name="email" id="email" className="form-control" value={formData.email} onChange={handleChange} />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="phoneNumber" className="text-white">Phone Number:</label>
-                                <input type="text" name="phoneNumber" id="phoneNumber" className="form-control" value={formData.phoneNumber} onChange={handleChange} />
-                            </div>
-                            <button className="btn btn-primary my-3" onClick={handleSaveClick}>Save</button>
-                            <button className="btn btn-danger" onClick={() => setEditMode(false)}>Cancel</button>
+                            <form>
+                                <div className="form-group">
+                                    <label htmlFor="firstName" className="text-white">First Name:</label>
+                                    <input type="text" name="firstName" id="firstName" className="form-control" value={formData.firstName} onChange={handleChange} required />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="lastName" className="text-white">Last Name:</label>
+                                    <input type="text" name="lastName" id="lastName" className="form-control" value={formData.lastName} onChange={handleChange} required />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="userName" className="text-white">Username:</label>
+                                    <input type="text" name="userName" id="userName" className="form-control" value={formData.userName} onChange={handleChange} required />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="email" className="text-white">Email:</label>
+                                    <input type="email" name="email" id="email" className="form-control" value={formData.email} onChange={handleChange} required />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="phoneNumber" className="text-white">Phone Number:</label>
+                                    <input type="text" name="phoneNumber" id="phoneNumber" className="form-control" value={formData.phoneNumber} onChange={handleChange} required />
+                                </div>
+                                <button className="btn btn-primary my-3" onClick={handleSaveClick}>Save</button>
+                                <button className="btn btn-danger" onClick={() => setEditMode(false)}>Cancel</button>
+                            </form>
                         </div>
 
 
@@ -172,11 +174,11 @@ const ProfilePage = () => {
                 <div className="col-md-6 d-flex flex-column gap-5">
                     <div className="d-flex flex-column gap-4">
                         <h3>Change Password</h3>
-                        <input type="password" name="oldPassword" className="form-control mb-2" placeholder="Old Password" value={formData.oldPassword} onChange={handleChange} />
-                        <input type="password" name="newPassword" className="form-control mb-2" placeholder="New Password" value={formData.newPassword} onChange={handleChange} />
+                        <input type="password" name="oldPassword" className="form-control mb-2" placeholder="Old Password" value={formData.oldPassword} onChange={handleChange} required />
+                        <input type="password" name="newPassword" className="form-control mb-2" placeholder="New Password" value={formData.newPassword} onChange={handleChange} required />
                         <button className="btn btn-primary w-50" onClick={handleChangePassword}>Change Password</button>
                     </div>
-                    <hr className="text-white"/>
+                    <hr className="text-white" />
                     <div className="mb-3">
                         <h3>Delete Profile</h3>
                         <p className="text-danger">Are you sure you want to delete your profile?</p>

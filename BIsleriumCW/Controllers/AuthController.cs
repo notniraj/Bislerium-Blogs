@@ -46,10 +46,12 @@ namespace BIsleriumCW.Controllers
             return Ok("Password reset successful.");
         }
 
-        [HttpPost("change-password")]
-        public async Task<IActionResult> ChangePassowrd(string currentPassword, string newPassword)
+
+        [HttpPost("change-password/")]
+        public async Task<IActionResult> ChangePassowrd(string currentPassword, string newPassword, string userId)
         {
-            await _repository.UserAuthentication.ChangePassowrd(currentPassword, newPassword);
+            await _repository.UserAuthentication.ChangePassowrd(currentPassword, newPassword, userId);
+
             return Ok("Password changed successfully.");
         }
     }

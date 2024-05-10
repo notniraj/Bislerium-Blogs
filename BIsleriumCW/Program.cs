@@ -40,10 +40,18 @@ options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoop
 //builder.Services.AddIdentityApiEndpoints<ApplicationUser>().AddEntityFrameworkStores<BisleriumDbContext>();
 //builder.Services.AddAuthorization();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost3000",
+        build =>
+        {
+            build.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader();
+        });
+});
+
+
 var app = builder.Build();
 
-// Enable CORS
-app.UseCors(c => c.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 
 
 // Configure the HTTP request pipeline.
@@ -52,6 +60,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Use CORS middleware
+app.UseCors("AllowLocalhost3000");
 
 app.UseHttpsRedirection();
 

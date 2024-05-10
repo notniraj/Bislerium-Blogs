@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from './Auth/AuthContext';
+import { useAuth } from '../Auth/AuthContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const Home = () => {
+const RandomBlogs = () => {
     const [blogs, setBlogs] = useState([]);
     const [commentText, setCommentText] = useState('');
     const [currentBlogId, setCurrentBlogId] = useState(null);
@@ -15,8 +15,8 @@ const Home = () => {
     const [showCommentModal, setShowCommentModal] = useState(false);
     const { isLoggedIn } = useAuth();
 
+    let userId = null;
     if (isLoggedIn) {
-        var userId = null;
         const user = localStorage.getItem('user');
         const userObject = JSON.parse(user);
         userId = userObject.UserId;
@@ -25,11 +25,12 @@ const Home = () => {
     useEffect(() => {
         const fetchBlogs = async () => {
             try {
-                const response = await axios.get('https://localhost:7212/api/Blog/ListActiveBlogs');
+                const response = await axios.get('https://localhost:7212/api/Blog/ListRandomActiveBlogs');
                 const fetchedBlogs = response.data;
                 const blogsWithComments = await Promise.all(fetchedBlogs.map(async (blog) => {
                     const commentsResponse = await axios.get(`https://localhost:7212/api/Comment/GetCommentsByBlogId/${blog.BlogID}`);
                     blog.Comments = commentsResponse.data;
+                    console.log(blog.Comments);
                     return blog;
                 }));
                 setBlogs(blogsWithComments);
@@ -84,6 +85,7 @@ const Home = () => {
             console.log(response)
             console.log('Comment submitted successfully:', response.data);
             toast.success('Comment added successfully');
+            window.location.reload();
             // Refresh the page or update the comments state to display the new comment
         } catch (error) {
             console.error('Error submitting comment:', error);
@@ -95,10 +97,16 @@ const Home = () => {
 
     const handleUpvote = async (blogId) => {
         try {
-            const response = await axios.put(`https://localhost:7212/api/Blog/Upvote/${blogId}`);
+            const response = await axios.post(`https://localhost:7212/api/Blog/${blogId}/upvote`, null, {
+                params: {
+                    UserId: userId
+                }
+            });
+            // Update the upvote count after successful upvote
+            const upvoteCountResponse = await axios.get(`https://localhost:7212/api/Blog/${blogId}/upvoteCount`);
             const updatedBlogs = blogs.map(blog => {
                 if (blog.BlogID === blogId) {
-                    return { ...blog, UpVote: response.data.UpVote };
+                    return { ...blog, UpVote: upvoteCountResponse.data };
                 }
                 return blog;
             });
@@ -112,10 +120,16 @@ const Home = () => {
 
     const handleDownvote = async (blogId) => {
         try {
-            const response = await axios.put(`https://localhost:7212/api/Blog/Downvote/${blogId}`);
+            const response = await axios.post(`https://localhost:7212/api/Blog/${blogId}/downvote`, null, {
+                params: {
+                    UserId: userId
+                }
+            });
+            // Update the downvote count after successful downvote
+            const downvoteCountResponse = await axios.get(`https://localhost:7212/api/Blog/${blogId}/downvoteCount`);
             const updatedBlogs = blogs.map(blog => {
                 if (blog.BlogID === blogId) {
-                    return { ...blog, DownVote: response.data.DownVote };
+                    return { ...blog, DownVote: downvoteCountResponse.data };
                 }
                 return blog;
             });
@@ -127,9 +141,66 @@ const Home = () => {
         }
     };
 
+    const handleUpvoteComment = async (commentId) => {
+        try {
+            await axios.post(`https://localhost:7212/api/Comment/${commentId}/upvote`, null, {
+                params: {
+                    UserId: userId
+                }
+            });
+            // Update the upvote count after successful upvote
+            const upvoteCountResponse = await axios.get(`https://localhost:7212/api/Comment/${commentId}/upvoteCount`);
+            const updatedBlogs = blogs.map(blog => {
+                const updatedComments = blog.Comments.map(comment => {
+                    if (comment.CommentId === commentId) {
+                        return { ...comment, UpVote: upvoteCountResponse.data };
+                    }
+                    return comment;
+                });
+                return { ...blog, Comments: updatedComments };
+            });
+            setBlogs(updatedBlogs);
+            console.log(blogs);
+            toast.success('Upvoted successfully');
+        } catch (error) {
+            console.error('Error upvoting comment:', error);
+            toast.error('Error upvoting comment');
+        }
+    };
+
+    const handleDownvoteComment = async (commentId) => {
+        try {
+            await axios.post(`https://localhost:7212/api/Comment/${commentId}/downvote`, null, {
+                params: {
+                    UserId: userId
+                }
+            });
+            // Update the downvote count after successful downvote
+            const downvoteCountResponse = await axios.get(`https://localhost:7212/api/Comment/${commentId}/downvoteCount`);
+            const updatedBlogs = blogs.map(blog => {
+                const updatedComments = blog.Comments.map(comment => {
+                    if (comment.CommentId === commentId) {
+                        return { ...comment, DownVote: downvoteCountResponse.data };
+                    }
+                    return comment;
+                });
+                return { ...blog, Comments: updatedComments };
+            });
+            setBlogs(updatedBlogs);
+            toast.success('Downvoted successfully');
+        } catch (error) {
+            console.error('Error downvoting comment:', error);
+            toast.error('Error downvoting comment');
+        }
+    };
+
+
+
+
     return (
         <div className="container blog-container">
             <h1 className="mt-5 mb-4 text-white">Welcome to Bislerium Blogs</h1>
+            <p className="text-white">Sorted By Random</p>
             {/* Add Blog Button */}
             {isLoggedIn && (
                 <button className="btn btn-adds w-25" onClick={toggleBlogModal}>Add Blog</button>
@@ -163,12 +234,26 @@ const Home = () => {
                         <h4>Comments</h4>
                         {blog.Comments && blog.Comments.map(comment => (
                             <div key={comment.CommentId} className="mb-3">
-                                <strong>{comment.User.UserName}:</strong> {comment.Comments}
+                                <div>
+                                    <span className="mx-2">
+                                        {new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(comment.CreatedAt))}
+                                    </span>
+                                    <span><strong>{comment.User.UserName}: </strong>{comment.Comments}</span>
+                                    <div>
+                                        {isLoggedIn && (
+                                            <div className="d-flex">
+                                                <button className="btn btn-light me-2 rounded-5" style={{ width: "40px", height: "35px" }} onClick={() => handleUpvoteComment(comment.CommentId)}>
+                                                    <i class="fa-solid fa-heart"></i>{comment.UpVote}
+                                                </button>
+                                                <button className="btn btn-danger rounded-5" style={{ width: "40px", height: "35px" }} onClick={() => handleDownvoteComment(comment.CommentId)}>
+                                                    <i className="fa-regular fa-thumbs-down"></i> {comment.DownVote}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         ))}
-                        {isLoggedIn && (
-                            <button className="btn btn-adds w-25 justify-content-end" onClick={() => toggleCommentModal(blog.BlogID)}>Add Comment</button>
-                        )}
                     </div>
                 </div>
             ))}
@@ -258,4 +343,4 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default RandomBlogs;

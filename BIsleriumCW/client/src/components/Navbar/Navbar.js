@@ -17,23 +17,38 @@ const Navbar = () => {
                 <div className="collapse navbar-collapse justify-content-between" id="navbarNav">
                     <ul className="navbar-nav mr-auto">
                         <li className="nav-item">
-                            <Link className="nav-link" to="/">Blogs</Link>
+                            <Link className="nav-link" to="/"><i className="fa-brands fa-blogger-b mx-1"></i>Blogs</Link>
                         </li>
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/about">About</Link>
+                        {isLoggedIn ? (
+                            <li className="nav-item">
+                                <Link className="nav-link" to="/myblogs"><i className="fa-regular fa-pen-to-square mx-1"></i>My Blogs</Link>
+                            </li>
+                        ) : (
+                            null
+                        )}
+                        <li className="nav-item dropdown">
+                            <a className="nav-link dropdown-toggle" href="/" id="navbarDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i className="fa-solid fa-list"></i> Blog Sort Categories
+                            </a>
+                            <div className="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <Link className="dropdown-item" to="/popularity">Popularity</Link>
+                                <Link className="dropdown-item" to="/recency">Recency</Link>
+                                <Link className="dropdown-item" to="/random">Random</Link>
+                            </div>
                         </li>
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/contact">Contact</Link>
-                        </li>
+
+                        
                     </ul>
                     <ul className="navbar-nav ml-auto">
                         {isLoggedIn ? (
                             <li className="nav-item dropdown">
                                 <a className="nav-link dropdown-toggle" href="/" id="navbarDropdown" role="button"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i className="fa fa-user"></i> {user.FirstName} {user.LastName} {/* Access user data from context */}
+                                    <i className="fa fa-user"></i> {user.FirstName} {user.LastName}{/* Access user data from context */}
                                 </a>
                                 <div className="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <Link className="dropdown-item" to="/profile">Profile</Link>
                                     <button className="dropdown-item" onClick={handleLogout}>Logout</button> {/* Use handleLogout from context */}
                                 </div>
                             </li>

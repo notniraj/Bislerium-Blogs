@@ -14,7 +14,7 @@ namespace BIsleriumCW.Interfaces
         public string GetUserId();
 
         Task ForgotPassword(string email);
-        Task ChangePassowrd(string currentPassword, string newPassword);
+        Task ChangePassowrd(string currentPassword, string newPassword, string userId);
         Task ResetPassword(string email, string token, string password);
     }
 } 
