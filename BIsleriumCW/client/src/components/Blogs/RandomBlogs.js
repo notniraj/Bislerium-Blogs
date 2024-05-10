@@ -226,7 +226,7 @@ const RandomBlogs = () => {
                                 </div>
                             )}
                             <div>
-                                <small className="me-2">Author: {blog.User.UserName}</small>
+                                <small className="me-2">Author: {blog.UserName}</small>
                                 <small>Published: {new Date(blog.CreatedAt).toLocaleDateString()}</small>
                             </div>
                         </div>
