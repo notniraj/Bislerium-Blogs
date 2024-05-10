@@ -1,0 +1,54 @@
+﻿/* Dashboard.css */
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+
+    .card:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+.card-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.card-text p {
+    margin-bottom: 0.5rem;
+}
+
+.list-unstyled {
+    padding-left: 0;
+}
+
+.list-unstyled li {
+    font-size: 1rem;
+    color: #555;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+}
+
+.list-unstyled li:last-child {
+    border-bottom: none;
+}
+
+.search-form {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+    .search-form label {
+        margin-right: 10px;
+    }
+
+    .search-form input {
+        margin-right: 10px;
+        width: 100px;
+    }
+
+    .search-form button {
+        margin-top: 10px;
+    }
+

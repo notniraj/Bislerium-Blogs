@@ -209,7 +209,7 @@ const Home = () => {
             {blogs.map(blog => (
                 <div key={blog.BlogID} className="card mb-4">
                     <div className="card-body">
-                        <h2 className="card-title">{blog.BlogTitle}</h2>
+                        <h1 className="card-title">{blog.BlogTitle}</h1>
                         <p className="card-text">{blog.BlogDescription}</p>
                         {blog.images && blog.images.map(image => (
                             <img key={image.id} src={image.BlogImageUrl} alt={image.alt} className="img-fluid mb-3" />
@@ -230,7 +230,7 @@ const Home = () => {
                                 <small>Published: {new Date(blog.CreatedAt).toLocaleDateString()}</small>
                             </div>
                         </div>
-                        <hr />
+                        <hr className="text-white" />
                         <h4>Comments</h4>
                         {blog.Comments && blog.Comments.map(comment => (
                             <div key={comment.CommentId} className="mb-3">
@@ -242,10 +242,10 @@ const Home = () => {
                                     <div>
                                         {isLoggedIn && (
                                             <div className="d-flex">
-                                                <button className="btn btn-light me-2 rounded-5" style={{ width:"40px", height:"35px"}} onClick={() => handleUpvoteComment(comment.CommentId)}>
+                                                <button className="btn btn-light me-2 rounded-5" style={{ width:"42px", height:"35px"}} onClick={() => handleUpvoteComment(comment.CommentId)}>
                                                     <i class="fa-solid fa-heart"></i>{comment.UpVote}
                                                 </button>
-                                                <button className="btn btn-danger rounded-5" style={{ width: "40px", height: "35px" }} onClick={() => handleDownvoteComment(comment.CommentId)}>
+                                                <button className="btn btn-danger rounded-5" style={{ width: "42px", height: "35px" }} onClick={() => handleDownvoteComment(comment.CommentId)}>
                                                     <i className="fa-regular fa-thumbs-down"></i> {comment.DownVote}
                                                 </button>
                                             </div>
@@ -254,6 +254,10 @@ const Home = () => {
                                 </div>
                             </div>
                         ))}
+                        <hr className="text-white" />
+                        {isLoggedIn && (
+                            <button className="btn btn-adds my-4 w-25" onClick={() => toggleCommentModal(blog.BlogID)}>Add Comment</button>
+                        )}
                     </div>
                 </div>
             ))}

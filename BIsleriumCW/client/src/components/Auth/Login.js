@@ -34,7 +34,16 @@ const Login = () => {
                 setFormData({ userName: '', password: '' });
 
                 // Redirect to the home page or any other page upon successful login
-                navigate('/');
+
+                const decodedToken = JSON.parse(atob(response.data.Token.split('.')[1]));
+                
+                console.log("New user Role: " + decodedToken);
+                if (decodedToken.Role === "Admin") {
+                    navigate('/admin');
+                }
+                else {
+                    navigate('/');
+                }
                 // Reload the page
                 window.location.reload();
             } else {

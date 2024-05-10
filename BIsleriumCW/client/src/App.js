@@ -12,6 +12,8 @@ import MyBlogsPage from './components/MyBlogs/MyBlogs';
 import PopularityBlogs from './components/Blogs/PopularityBlogs';
 import RecencyBlogs from './components/Blogs/RecencyBlogs';
 import RandomBlogs from './components/Blogs/RandomBlogs';
+import RegisterAdmin from './components/Admin/RegisterAdmin';
+import Dashboard from './components/Admin/Dashboard';
 
 
 
@@ -24,13 +26,15 @@ const App = () => {
                     <Routes>
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
-                        <Route path="/" element={<Home />} />
                         <Route path="/profile" element={<ProfilePage />} />
                         <Route path="/popularity" element={<PopularityBlogs />} />
                         <Route path="/myblogs" element={<MyBlogsPage />} />
                         <Route path="/recency" element={<RecencyBlogs />} />
                         <Route path="/random" element={<RandomBlogs />} />
-                        
+
+                        <Route path="/admin" element={<Dashboard />} />
+                        <Route path="/registeradmin" element={<RegisterAdmin />} />
+                        <Route path = "/" element = { <Home />} />
                     </Routes>
                 </div>
             </AuthProvider>
