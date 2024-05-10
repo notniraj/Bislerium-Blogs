@@ -1,70 +1,96 @@
-# Getting Started with Create React App
+## Bislerium Blogs
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+In our group coursework for Bislerium PVT. LTD.'s blogging platform, we're tasked with developing a web application that embodies the future of digital interaction within their social media ecosystem. With strict requirements for an enterprise-level framework, our goal is to deliver a robust and scalable solution aligned with Bislerium's vision. The application caters to two primary user categories: bloggers and admins, with authorized access to all features. Additionally, "surfers" can browse and read blogs without authentication. Key features include self-registration, advanced sorting options, community-driven reactions and comments, and push notifications for authors. Administrators gain access to comprehensive usage metrics and rankings for strategic decision-making.s
 
-In the project directory, you can run:
+## Installation Steps
+### Prerequisites
+Before the configuration of .Net Web API Project, we have to confirm installation of following:
 
-### `npm start`
+- .NET Core SDK (version 3.1 or higher)
+- Visual Studio
+- Database (e.g., SQLite, MySQL)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Clone the Repository
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
+git clone https://github.com/notniraj/Bislerium-Blogs
+cd Bislerium-Blogs
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+## Install Dependencies Backend
+Run the command below in Package Manager Console to install the project dependencies defined.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+dotnet restore
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Install Dependencies Frontend
+Run the command below in Package Manager Console to install the project dependencies defined.
 
-### `npm run eject`
+cd client
+npm install
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Environmental Configuration
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+After cloning the Bislerium-Blogs project, copy the example environment configuration file and update it with your database credentials:
 
-## Learn More
+cp appsettings.example.json appsettings.json
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Database Setup
 
-### Analyzing the Bundle Size
+Create the database migration using Entity Framework Core migrations. This command is also to be executed in Package Manager Console:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+add-Migration
 
-### Making a Progressive Web App
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Also, for database update run following command.
 
-### Advanced Configuration
+update-database
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
 
-### Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Run the Application
 
-### `npm run build` fails to minify
+Finally, start the DotNet development server.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+dotnet build
+dotnet run BisleriumCW.sln
+
+## Acess the Application
+
+dotnet: visit http://localhost:7212/ in your web browser, where you can access the application.
+react: visit http://localhost:3000/ in your web browser, where you can access the application.
+
+## Usage and Testing
+
+### Key Features
+
+- User Authentication: Users can self-register and log in, which allows them to post, respond, and comment on blogs.
+
+- Content Discovery: Advanced sorting options including random, popularity, and recency improve the browsing experience for consumers.
+
+- Community Engagement: Users can reply to and comment on blogs, which promotes interaction and community building on the platform.
+
+- Analytics: Administrators can view usage analytics such as total and daily blog posts, reactions, and comments, as well as top posts and bloggers.
+
+### Sample Data and Testing
+
+The seeded data can be used as sample data to test the Chirper Application or new account can be created.
+
+## Contributing and Issues
+
+We welcome contributions!, Thank you for considering contributing to this Project. If you find a bug or have a feature request, please open an issue on the [GitHub repository](https://github.com/notniraj/Bislerium-Blogs.git/issues).
+
+## License
+
+The dotnet framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Contact Information
+
+For support or inquiries, contact us at nirajkarkithapa@gmail.com
