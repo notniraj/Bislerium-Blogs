@@ -1,4 +1,5 @@
 ﻿using BIsleriumCW.Data;
+using BIsleriumCW.Hubs;
 using BIsleriumCW.Interfaces;
 using BIsleriumCW.Migrations;
 using BIsleriumCW.Models;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -23,12 +25,14 @@ namespace BIsleriumCW.Controllers
         private readonly IUserAuthenticationRepository _userAuthenticationRepository;
         //private IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
+        private IHubContext<NotificationHub, INotificationHub> messageHub;
 
-        public BlogController(BisleriumDbContext dbContext, UserManager<ApplicationUser> userManager, IUserAuthenticationRepository userAuthenticationRepository)
+        public BlogController(BisleriumDbContext dbContext, UserManager<ApplicationUser> userManager, IUserAuthenticationRepository userAuthenticationRepository, IHubContext<NotificationHub, INotificationHub> messageHub)
         {
             _dbContext = dbContext;
             _userManager = userManager;
             _userAuthenticationRepository = userAuthenticationRepository;
+            this.messageHub = messageHub;
         }
 
         [HttpPost]
@@ -331,6 +335,7 @@ public async Task<IActionResult> GetRandomActiveBlogs()
                 newReaction.CreatedAt = DateTime.Now;
                 // Add the new Reaction to DbContext and save changes
                 _dbContext.BlogReactions.Add(newReaction);
+                await messageHub.Clients.All.SendMessage("Username Yaha", "UpVoted Sucessfully");
             }
             else
             {

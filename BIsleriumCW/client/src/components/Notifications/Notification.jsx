@@ -37,8 +37,8 @@ const Notification = () => {
 
   const fetchUserBlogs = async () => {
     try {
-      const response = await axios.get(
-        `https://localhost:7212/api/Message/signalR-test`
+      const response = await axios.post(
+        `https://localhost:7212/api/blog/{blogId}/upvote`
       );
       setUser(response.data);
     } catch (error) {

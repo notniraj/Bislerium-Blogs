@@ -22,7 +22,7 @@ namespace BIsleriumCW.Controllers
         public string GetMessage()
         {
             messageHub.Clients.All.SendMessage("Rohan", "This is SignalR Testing API");
-            return "Offers sent successfully to all users!";
+            return "Notofication sent successfully to all users!";
         }
 
     }

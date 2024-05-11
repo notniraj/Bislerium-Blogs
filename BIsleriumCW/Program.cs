@@ -23,6 +23,7 @@ builder.Services.ConfigureRepositoryManager();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserAuthenticationRepository, UserAuthenticationRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<NotificationHub>();
 
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
