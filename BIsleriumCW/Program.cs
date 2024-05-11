@@ -1,5 +1,6 @@
 using BIsleriumCW.Data;
 using BIsleriumCW.Extensions;
+using BIsleriumCW.Hubs;
 using BIsleriumCW.Interfaces;
 using BIsleriumCW.Models;
 using BIsleriumCW.Services;
@@ -32,6 +33,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureSwagger();
 builder.Services.AddSwaggerGen();
 
+// SignalR configurations
+builder.Services.AddSignalR();
+
+
+
 // Json Serializer
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore).AddNewtonsoftJson(
@@ -63,6 +69,9 @@ if (app.Environment.IsDevelopment())
 
 // Use CORS middleware
 app.UseCors("AllowLocalhost3000");
+
+// adding map for signalR
+app.MapHub<NotificationHub>("/notify");
 
 app.UseHttpsRedirection();
 
