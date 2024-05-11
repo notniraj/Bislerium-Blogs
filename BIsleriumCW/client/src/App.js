@@ -14,6 +14,7 @@ import RecencyBlogs from './components/Blogs/RecencyBlogs';
 import RandomBlogs from './components/Blogs/RandomBlogs';
 import RegisterAdmin from './components/Admin/RegisterAdmin';
 import Dashboard from './components/Admin/Dashboard';
+import Notification from './components/Notifications/Notification';
 
 
 
@@ -35,6 +36,7 @@ const App = () => {
                         <Route path="/admin" element={<Dashboard />} />
                         <Route path="/registeradmin" element={<RegisterAdmin />} />
                         <Route path = "/" element = { <Home />} />
+                        <Route path = "/notification" element = { <Notification />} />
                     </Routes>
                 </div>
             </AuthProvider>

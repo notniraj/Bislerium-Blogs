@@ -17,7 +17,7 @@ namespace BIsleriumCW.Controllers
             this.messageHub = messageHub;
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("signalR-test")]
         public string GetMessage()
         {
