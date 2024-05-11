@@ -74,10 +74,10 @@ const Dashboard = () => {
                                     labels: ['Total Blog Posts', 'Total Upvotes', 'Total Downvotes', 'Total Comments'],
                                     datasets: [
                                         {
-                                            label: 'Count',
+                                            label: 'Total Counts',
                                             backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)'],
                                             borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
-                                            borderWidth: 1,
+                                            borderWidth: .5,
                                             data: [allTimeStats.TotalBlogPosts, allTimeStats.TotalUpvotes, allTimeStats.TotalDownvotes, allTimeStats.TotalComments],
                                         },
                                     ],
@@ -154,7 +154,9 @@ const Dashboard = () => {
                                 <tbody>
                                     {dailyActivity.map((activity, index) => (
                                         <tr key={index}>
-                                            <td>{activity.Date}</td>
+                                            <td>
+                                                {new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour:'numeric', minute: 'numeric' }).format(new Date(activity.Date))}
+                                            </td>
                                             <td>{activity.BlogPostCount}</td>
                                             <td>{activity.UpvoteCount}</td>
                                             <td>{activity.DownvoteCount}</td>

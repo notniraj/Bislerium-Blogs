@@ -1,1 +1,5 @@
-﻿
+﻿nav{
+    backdrop-filter:blur(100px);
+    border-end-end-radius:20px;
+    border-end-start-radius: 20px;
+}

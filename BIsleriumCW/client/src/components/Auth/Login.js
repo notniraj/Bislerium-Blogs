@@ -2,6 +2,7 @@
 import { useNavigate, useHistory } from 'react-router-dom';
 import axios from 'axios'; // Import Axios
 import TextInput from '../Common/TextInput';
+import { Link } from 'react-router-dom';
 
 const Login = () => {
     const [formData, setFormData] = useState({ userName: '', password: '' });
@@ -90,6 +91,8 @@ const Login = () => {
                 </div>
                 <hr />
                 <button type="submit" className="py-3 btn-adds">Login</button>
+                <hr />
+                <Link to="/reset" className="btn text-center">Forgot Password?</Link>
             </form>
         </div>
     );

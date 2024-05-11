@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthContext'; // Import useAuth hook
+import './navbar.css'
 
 const Navbar = () => {
     const { user, isLoggedIn, handleLogout } = useAuth(); // Use useAuth hook to access authentication context
@@ -29,11 +30,11 @@ const Navbar = () => {
                         {isLoggedIn && user.Role === "Admin" && (
                             <>
                                 <li className="nav-item">
-                                    <Link className="nav-link" to="/admin"><i className="fa-regular fa-pen-to-square mx-1"></i>Dashboard</Link>
+                                    <Link className="nav-link" to="/admin"><i className="fa-solid fa-chart-column mx-1"></i>Dashboard</Link>
                                  </li>
 
                                 <li className="nav-item">
-                                    <Link className="nav-link" to="/registeradmin"><i className="fa-regular fa-pen-to-square mx-1"></i>Admin Register</Link>
+                                    <Link className="nav-link" to="/registeradmin"><i className="fa-solid fa-user-shield mx-1"></i>Admin Register</Link>
                                 </li>
                             </>
                             
@@ -61,8 +62,8 @@ const Navbar = () => {
                                     <i className="fa fa-user"></i> {user.FirstName} {user.LastName}{/* Access user data from context */}
                                 </a>
                                 <div className="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <Link className="dropdown-item" to="/profile">Profile</Link>
-                                    <button className="dropdown-item" onClick={handleLogout}>Logout</button> {/* Use handleLogout from context */}
+                                    <Link className="dropdown-item" to="/profile"><i className="fa-solid fa-user-pen mx-1"></i>Profile</Link>
+                                    <button className="dropdown-item" style={{ color: "red" }} onClick={handleLogout}><i className="fa-solid fa-arrow-right-from-bracket fa-flip mx-1" style={{ color: "red" }}></i>Logout</button> {/* Use handleLogout from context */}
                                 </div>
                             </li>
                         ) : (

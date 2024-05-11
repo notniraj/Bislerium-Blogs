@@ -75,9 +75,9 @@ namespace BIsleriumCW.Controllers
 
         [HttpPut]
         [Route("ChangePassword/")]
-        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword, String UserId)
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
-            var userID = UserId;/*_userAuthenticationRepository.GetUserId();*/
+            var userID = request.userId;
             var user = await _userManager.FindByIdAsync(userID);
 
             if (user == null)
@@ -86,7 +86,7 @@ namespace BIsleriumCW.Controllers
             }
 
             // Change password using UserManager
-            var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+            var result = await _userManager.ChangePasswordAsync(user, request.oldPassword, request.newPassword);
 
             if (!result.Succeeded)
             {
@@ -97,12 +97,19 @@ namespace BIsleriumCW.Controllers
             return Ok("Password changed successfully");
         }
 
+        public class ChangePasswordRequest
+        {
+            public string userId { get; set; }
+            public string oldPassword { get; set; }
+            public string newPassword { get; set; }
+        }
+
 
         [HttpDelete]
-        [Route("DeleteUser/")]
+        [Route("DeleteUser/{UserId}")]
         public async Task<IActionResult> DeleteUser(String UserId)
         {
-            var userID = UserId;/*_userAuthenticationRepository.GetUserId();*/
+            var userID = UserId;
             var user = await _userManager.FindByIdAsync(userID);
 
             if (user == null)

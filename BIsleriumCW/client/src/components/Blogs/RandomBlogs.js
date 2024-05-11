@@ -13,6 +13,10 @@ const RandomBlogs = () => {
     const [blogImageUrl, setBlogImageUrl] = useState('');
     const [showBlogModal, setShowBlogModal] = useState(false);
     const [showCommentModal, setShowCommentModal] = useState(false);
+    // State variables for editing comments
+    const [isEditingComment, setIsEditingComment] = useState(false);
+    const [editedCommentText, setEditedCommentText] = useState('');
+    const [editedCommentId, setEditedCommentId] = useState(null);
     const { isLoggedIn } = useAuth();
 
     let userId = null;
@@ -25,8 +29,9 @@ const RandomBlogs = () => {
     useEffect(() => {
         const fetchBlogs = async () => {
             try {
-                const response = await axios.get('https://localhost:7212/api/Blog/ListRandomActiveBlogs');
+                const response = await axios.get('https://localhost:7212/api/Blog/ListActiveBlogs');
                 const fetchedBlogs = response.data;
+
                 const blogsWithComments = await Promise.all(fetchedBlogs.map(async (blog) => {
                     const commentsResponse = await axios.get(`https://localhost:7212/api/Comment/GetCommentsByBlogId/${blog.BlogID}`);
                     blog.Comments = commentsResponse.data;
@@ -53,7 +58,7 @@ const RandomBlogs = () => {
     const handleBlogSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('https://localhost:7212/api/Blog', {
+            const response = await axios.post('https://localhost:7212/api/Blog/ListActiveBlogsByPopularity', {
                 blogTitle: blogTitle,
                 blogDescription: blogDescription,
                 blogImageUrl: blogImageUrl,
@@ -195,12 +200,55 @@ const RandomBlogs = () => {
     };
 
 
+    // Function to handle editing comment
+    const handleEditComment = async (commentId) => {
+        // Find the comment by its ID
+        const commentToEdit = blogs.flatMap(blog => blog.Comments).find(comment => comment.CommentId === commentId);
+        // Set the edited comment text and ID
+        setEditedCommentText(commentToEdit.Comments);
+        setEditedCommentId(commentId);
+        setIsEditingComment(true);
+    };
+
+    // Function to handle updating the edited comment
+    const handleUpdateComment = async (BlogId) => {
+        try {
+            await axios.put(`https://localhost:7212/api/Comment/UpdateComment/${editedCommentId}`, {
+                UserId: userId,
+                comments: editedCommentText,
+                blogId: BlogId
+            });
+            // Refresh the page or update the comments state to reflect the changes
+            window.location.reload();
+        } catch (error) {
+            console.error('Error updating comment:', error);
+            toast.error('Error updating comment');
+        }
+        setIsEditingComment(false);
+        setEditedCommentText('');
+        setEditedCommentId(null);
+    };
+
+    // Function to handle deleting comment
+    const handleDeleteComment = async (commentId) => {
+        if (window.confirm('Are you sure you want to delete this comment?')) {
+            try {
+                await axios.delete(`https://localhost:7212/api/Comment/DeleteComment/${commentId}`);
+                // Refresh the page or update the comments state to reflect the changes
+                window.location.reload();
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+                toast.error('Error deleting comment');
+            }
+        }
+    };
+
 
 
     return (
         <div className="container blog-container">
             <h1 className="mt-5 mb-4 text-white">Welcome to Bislerium Blogs</h1>
-            <p className="text-white">Sorted By Random</p>
+            <h6>Sorted By Random</h6>
             {/* Add Blog Button */}
             {isLoggedIn && (
                 <button className="btn btn-adds w-25" onClick={toggleBlogModal}>Add Blog</button>
@@ -209,7 +257,7 @@ const RandomBlogs = () => {
             {blogs.map(blog => (
                 <div key={blog.BlogID} className="card mb-4">
                     <div className="card-body">
-                        <h2 className="card-title">{blog.BlogTitle}</h2>
+                        <h1 className="card-title">{blog.BlogTitle}</h1>
                         <p className="card-text">{blog.BlogDescription}</p>
                         {blog.images && blog.images.map(image => (
                             <img key={image.id} src={image.BlogImageUrl} alt={image.alt} className="img-fluid mb-3" />
@@ -226,11 +274,11 @@ const RandomBlogs = () => {
                                 </div>
                             )}
                             <div>
-                                <small className="me-2">Author: {blog.UserName}</small>
-                                <small>Published: {new Date(blog.CreatedAt).toLocaleDateString()}</small>
+                                <small className="me-2"><strong>Author: </strong>{blog.UserName}</small>
+                                <small><strong>Published: </strong>{new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(blog.CreatedAt))}</small>
                             </div>
                         </div>
-                        <hr />
+                        <hr className="text-white" />
                         <h4>Comments</h4>
                         {blog.Comments && blog.Comments.map(comment => (
                             <div key={comment.CommentId} className="mb-3">
@@ -242,18 +290,42 @@ const RandomBlogs = () => {
                                     <div>
                                         {isLoggedIn && (
                                             <div className="d-flex">
-                                                <button className="btn btn-light me-2 rounded-5" style={{ width: "40px", height: "35px" }} onClick={() => handleUpvoteComment(comment.CommentId)}>
+                                                <button className="btn btn-light me-2 rounded-5" style={{ width: "42px", height: "35px" }} onClick={() => handleUpvoteComment(comment.CommentId)}>
                                                     <i class="fa-solid fa-heart"></i>{comment.UpVote}
                                                 </button>
-                                                <button className="btn btn-danger rounded-5" style={{ width: "40px", height: "35px" }} onClick={() => handleDownvoteComment(comment.CommentId)}>
+                                                <button className="btn btn-danger rounded-5" style={{ width: "42px", height: "35px" }} onClick={() => handleDownvoteComment(comment.CommentId)}>
                                                     <i className="fa-regular fa-thumbs-down"></i> {comment.DownVote}
                                                 </button>
+                                                {comment.User.UserId === userId && (
+                                                    <>
+                                                        <button className="btn btn-primary ms-2" style={{ width: "42px", height: "35px" }} onClick={() => handleEditComment(comment.CommentId)}><i class="fa-regular fa-pen-to-square"></i></button>
+                                                        <button className="btn btn-danger ms-2" style={{ width: "42px", height: "35px" }} onClick={() => handleDeleteComment(comment.CommentId)}><i class="fa-solid fa-trash-can"></i></button>
+
+                                                        {comment.CommentId === editedCommentId && (
+                                                            <div className="mb-3">
+                                                                <textarea
+                                                                    className="form-control"
+                                                                    value={editedCommentText}
+                                                                    onChange={(e) => setEditedCommentText(e.target.value)}
+                                                                ></textarea>
+                                                                <button className="btn btn-primary mt-2" onClick={() => handleUpdateComment(blog.BlogID)}>Update Comment</button>
+                                                            </div>
+                                                        )}
+                                                    </>
+
+                                                )}
+
+
                                             </div>
                                         )}
                                     </div>
                                 </div>
                             </div>
                         ))}
+                        <hr className="text-white" />
+                        {isLoggedIn && (
+                            <button className="btn btn-adds my-4 w-25" onClick={() => toggleCommentModal(blog.BlogID)}> <i class="fa-regular fa-comment mx-2"></i>Add Comment</button>
+                        )}
                     </div>
                 </div>
             ))}
